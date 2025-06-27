@@ -8,3 +8,4 @@ wheel
 email-validator         # if you're doing email validation in FastAPI
 passlib[bcrypt]         # for password hashing
 python-jose[cryptography]  # for JWT token auth
+PyJWT
