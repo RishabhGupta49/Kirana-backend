@@ -1,6 +1,5 @@
-Flask
-gunicorn
+fastapi
+uvicorn[standard]
 pymongo
-flask-cors
 setuptools
 wheel
