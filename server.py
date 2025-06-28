@@ -13,15 +13,18 @@ from datetime import datetime, timedelta
 import jwt
 import hashlib
 from enum import Enum
-from flask import Flask, jsonify, request
 
-app = Flask(__name__)
+load_dotenv()
 
-@app.route('/')
-def home():
-    return "Kirana Store Backend is running!"
+app = FastAPI()
 
-# Add your other routes below here...
+# ✅ ✅ ✅ ROOT ROUTE ADDED HERE
+@app.get('/')
+def root():
+    return {"message": "Backend is working fine ✅"}
+
+# ...rest of your routers, MongoDB client, and business logic...
+
 
 
 ROOT_DIR = Path(__file__).parent
