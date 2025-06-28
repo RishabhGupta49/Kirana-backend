@@ -13,17 +13,16 @@ from datetime import datetime, timedelta
 import jwt
 import hashlib
 from enum import Enum
+from dotenv import load_dotenv
 
 load_dotenv()
 
 app = FastAPI()
 
-# ✅ ✅ ✅ ROOT ROUTE ADDED HERE
-@app.get('/')
+@app.get("/")
 def root():
     return {"message": "Backend is working fine ✅"}
 
-# ...rest of your routers, MongoDB client, and business logic...
 
 
 
