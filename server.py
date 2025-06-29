@@ -13,62 +13,46 @@ from datetime import datetime, timedelta
 import jwt
 import hashlib
 from enum import Enum
-from dotenv import load_dotenv
-app = FastAPI()
 
 
-
-
-# Load environment variables
+ # Load environment variables first
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')  # For local dev (optional)
-load_dotenv()  # General load
+load_dotenv(ROOT_DIR / '.env')
 
 # Initialize FastAPI app
 app = FastAPI()
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Or ["https://your-frontend.netlify.app"]
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Root test route
+# Root route
 @app.get("/")
-def read_root():
+def root():
     return {"message": "Backend is working fine ✅"}
 
+# Health check endpoint
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+
 # MongoDB connection
-mongo_url = os.environ.get("MONGODB_URI")
-db_name = os.environ.get("DB_NAME")
+mongo_url = os.environ.get('MONGODB_URI')
+if not mongo_url:
+    logging.error("MONGODB_URI environment variable is not set")
+    raise RuntimeError("MongoDB connection string is missing")
 
 client = AsyncIOMotorClient(mongo_url)
+db_name = os.environ.get('DB_NAME', 'telecom-prod')
 db = client[db_name]
 
-# ✅ Example endpoint using MongoDB (test if needed)
-@app.get("/users")
-async def get_users():
-    users_collection = db["users"]
-    users = await users_collection.find().to_list(10)
-    return {"users": users}
-
-
-# Create the main app without a prefix
-app = FastAPI()
-
-# Create a router with the /api prefix
+# Create a router with /api prefix
 api_router = APIRouter(prefix="/api")
 
-# JWT Configuration
-SECRET_KEY = "kesharwani_telecom_secret_key_2024"
+# JWT Configuration - Use environment variable with fallback
+SECRET_KEY = os.environ.get('SECRET_KEY', 'fallback_secret_key_please_change')
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Security
 security = HTTPBearer()
+
 
 # Enums
 class UserRole(str, Enum):
@@ -793,14 +777,13 @@ async def get_retailers(current_user: UserResponse = Depends(get_current_user)):
 
 # Include the router in the main app
 app.include_router(api_router)
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_credentials=True,
-#     allow_origins=["*"],
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configure logging
 logging.basicConfig(
