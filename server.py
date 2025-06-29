@@ -13,6 +13,8 @@ from datetime import datetime, timedelta
 import jwt
 import hashlib
 from enum import Enum
+import ssl
+from certifi import where
 
 
  # Load environment variables first
@@ -37,6 +39,22 @@ mongo_url = os.environ.get('MONGODB_URI')
 if not mongo_url:
     logging.error("MONGODB_URI environment variable is not set")
     raise RuntimeError("MongoDB connection string is missing")
+
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+ssl_context.verify_mode = ssl.CERT_REQUIRED
+ssl_context.load_verify_locations(where())
+
+# Create client with SSL context
+client = AsyncIOMotorClient(
+    mongo_url,
+    tls=True,
+    tlsAllowInvalidCertificates=False,
+    ssl=ssl_context,
+    tlsInsecure=False,
+    connectTimeoutMS=30000,
+    socketTimeoutMS=30000
+)
 
 client = AsyncIOMotorClient(mongo_url)
 db_name = os.environ.get('DB_NAME', 'telecom-prod')
