@@ -14,25 +14,47 @@ import jwt
 import hashlib
 from enum import Enum
 from dotenv import load_dotenv
-
-load_dotenv()
-
 app = FastAPI()
 
+
+
+
+# Load environment variables
+ROOT_DIR = Path(__file__).parent
+load_dotenv(ROOT_DIR / '.env')  # For local dev (optional)
+load_dotenv()  # General load
+
+# Initialize FastAPI app
+app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or ["https://your-frontend.netlify.app"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Root test route
 @app.get("/")
-def root():
+def read_root():
     return {"message": "Backend is working fine ✅"}
 
-
-
-
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
-
 # MongoDB connection
-mongo_url = os.environ['MONGODB_URI']
+mongo_url = os.environ.get("MONGODB_URI")
+db_name = os.environ.get("DB_NAME")
+
 client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+db = client[db_name]
+
+# ✅ Example endpoint using MongoDB (test if needed)
+@app.get("/users")
+async def get_users():
+    users_collection = db["users"]
+    users = await users_collection.find().to_list(10)
+    return {"users": users}
+
 
 # Create the main app without a prefix
 app = FastAPI()
@@ -772,13 +794,13 @@ async def get_retailers(current_user: UserResponse = Depends(get_current_user)):
 # Include the router in the main app
 app.include_router(api_router)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_credentials=True,
+#     allow_origins=["*"],
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 # Configure logging
 logging.basicConfig(
