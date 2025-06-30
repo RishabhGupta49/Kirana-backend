@@ -51,9 +51,6 @@ client = AsyncIOMotorClient(
     connectTimeoutMS=30000,
     socketTimeoutMS=30000
 )
-
-
-client = AsyncIOMotorClient(mongo_url)
 db_name = os.environ.get('DB_NAME', 'telecom-prod')
 db = client[db_name]
 
