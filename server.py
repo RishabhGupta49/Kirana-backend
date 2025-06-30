@@ -45,15 +45,13 @@ ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
 ssl_context.verify_mode = ssl.CERT_REQUIRED
 ssl_context.load_verify_locations(where())
 
-# Create client with SSL context
 client = AsyncIOMotorClient(
     mongo_url,
     tls=True,
-    tlsAllowInvalidCertificates=False,
-    tlsInsecure=False,
     connectTimeoutMS=30000,
     socketTimeoutMS=30000
 )
+
 
 client = AsyncIOMotorClient(mongo_url)
 db_name = os.environ.get('DB_NAME', 'telecom-prod')
