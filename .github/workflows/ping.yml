@@ -1,0 +1,15 @@
+name: Keep Render Backend Alive
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"  # every 20 minutes
+  workflow_dispatch: # allows manual run
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render server
+        run: |
+          curl -I https://kirana-backend-9lya.onrender.com
+
